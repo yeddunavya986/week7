@@ -1,0 +1,244 @@
+{
+  "nbformat": 4,
+  "nbformat_minor": 0,
+  "metadata": {
+    "colab": {
+      "provenance": []
+    },
+    "kernelspec": {
+      "name": "python3",
+      "display_name": "Python 3"
+    },
+    "language_info": {
+      "name": "python"
+    }
+  },
+  "cells": [
+    {
+      "cell_type": "code",
+      "execution_count": null,
+      "metadata": {
+        "colab": {
+          "base_uri": "https://localhost:8080/"
+        },
+        "id": "PAdLBE3A9iIp",
+        "outputId": "22059d03-919e-4bb4-9378-e604803d1aaa"
+      },
+      "outputs": [
+        {
+          "output_type": "stream",
+          "name": "stdout",
+          "text": [
+            "\u001b[?25l   \u001b[90m━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\u001b[0m \u001b[32m0.0/143.7 kB\u001b[0m \u001b[31m?\u001b[0m eta \u001b[36m-:--:--\u001b[0m\r\u001b[2K   \u001b[90m━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\u001b[0m \u001b[32m143.7/143.7 kB\u001b[0m \u001b[31m7.1 MB/s\u001b[0m eta \u001b[36m0:00:00\u001b[0m\n",
+            "\u001b[?25h"
+          ]
+        }
+      ],
+      "source": [
+        "!pip install groq transformers -q"
+      ]
+    },
+    {
+      "cell_type": "code",
+      "source": [
+        "from google.colab import userdata\n",
+        "from groq import Groq\n"
+      ],
+      "metadata": {
+        "id": "9RgIB8Cx9zi3"
+      },
+      "execution_count": null,
+      "outputs": []
+    },
+    {
+      "cell_type": "code",
+      "source": [
+        "api_key = userdata.get(\"GROQ_API_KEY\")\n",
+        "client = Groq(api_key=api_key)\n"
+      ],
+      "metadata": {
+        "id": "gBCA00Yh93sG"
+      },
+      "execution_count": null,
+      "outputs": []
+    },
+    {
+      "cell_type": "code",
+      "source": [
+        "# ---------------------------------------\n",
+        "# Article\n",
+        "# ---------------------------------------\n",
+        "\n",
+        "article = \"\"\"\n",
+        "Artificial Intelligence (AI) is a technology that allows computers to perform tasks\n",
+        "that normally require human intelligence. AI is used in healthcare, education,\n",
+        "banking, transportation, and many other fields. It helps improve accuracy,\n",
+        "save time, and automate repetitive tasks. As AI continues to develop,\n",
+        "it is becoming an important part of our daily lives.\n",
+        "\"\"\"\n",
+        "\n",
+        "# ---------------------------------------\n",
+        "# Basic Prompt\n",
+        "# ---------------------------------------\n",
+        "\n",
+        "basic_prompt = f\"\"\"\n",
+        "Summarize the following article:\n",
+        "\n",
+        "{article}\n",
+        "\"\"\"\n",
+        "\n",
+        "basic_response = client.chat.completions.create(\n",
+        "    model=\"llama-3.3-70b-versatile\",\n",
+        "    messages=[{\"role\": \"user\", \"content\": basic_prompt}]\n",
+        ")\n",
+        "\n",
+        "# ---------------------------------------\n",
+        "# Refinement Cycle 1\n",
+        "# ---------------------------------------\n",
+        "\n",
+        "refinement1 = f\"\"\"\n",
+        "Summarize the following article.\n",
+        "\n",
+        "Write in about 50 words.\n",
+        "Use simple English.\n",
+        "\n",
+        "Article:\n",
+        "{article}\n",
+        "\"\"\"\n",
+        "\n",
+        "response1 = client.chat.completions.create(\n",
+        "    model=\"llama-3.3-70b-versatile\",\n",
+        "    messages=[{\"role\": \"user\", \"content\": refinement1}]\n",
+        ")\n",
+        "\n",
+        "# ---------------------------------------\n",
+        "# Refinement Cycle 2\n",
+        "# ---------------------------------------\n",
+        "\n",
+        "refinement2 = f\"\"\"\n",
+        "Summarize the following article.\n",
+        "\n",
+        "Rules:\n",
+        "- Write 40 to 50 words.\n",
+        "- Use simple English.\n",
+        "- Write exactly 4 bullet points.\n",
+        "\n",
+        "Article:\n",
+        "{article}\n",
+        "\"\"\"\n",
+        "\n",
+        "response2 = client.chat.completions.create(\n",
+        "    model=\"llama-3.3-70b-versatile\",\n",
+        "    messages=[{\"role\": \"user\", \"content\": refinement2}]\n",
+        ")\n",
+        "\n",
+        "# ---------------------------------------\n",
+        "# Display Results\n",
+        "# ---------------------------------------\n",
+        "\n",
+        "print(\"========== Basic Prompt ==========\\n\")\n",
+        "print(basic_prompt)\n",
+        "\n",
+        "print(\"\\nOutput:\\n\")\n",
+        "print(basic_response.choices[0].message.content)\n",
+        "\n",
+        "print(\"\\n\\n========== Refinement Cycle 1 ==========\\n\")\n",
+        "print(refinement1)\n",
+        "\n",
+        "print(\"\\nOutput:\\n\")\n",
+        "print(response1.choices[0].message.content)\n",
+        "\n",
+        "print(\"\\n\\n========== Refinement Cycle 2 ==========\\n\")\n",
+        "print(refinement2)\n",
+        "\n",
+        "print(\"\\nOutput:\\n\")\n",
+        "print(response2.choices[0].message.content)\n"
+      ],
+      "metadata": {
+        "id": "RkZfnR0B9_IO",
+        "outputId": "b3b6c014-78e3-4263-e2ca-779692f63953",
+        "colab": {
+          "base_uri": "https://localhost:8080/"
+        }
+      },
+      "execution_count": null,
+      "outputs": [
+        {
+          "output_type": "stream",
+          "name": "stdout",
+          "text": [
+            "========== Basic Prompt ==========\n",
+            "\n",
+            "\n",
+            "Summarize the following article:\n",
+            "\n",
+            "\n",
+            "Artificial Intelligence (AI) is a technology that allows computers to perform tasks\n",
+            "that normally require human intelligence. AI is used in healthcare, education,\n",
+            "banking, transportation, and many other fields. It helps improve accuracy,\n",
+            "save time, and automate repetitive tasks. As AI continues to develop,\n",
+            "it is becoming an important part of our daily lives.\n",
+            "\n",
+            "\n",
+            "\n",
+            "Output:\n",
+            "\n",
+            "The article provides a brief overview of Artificial Intelligence (AI), stating that it enables computers to perform tasks that typically require human intelligence. AI is applied in various fields, including healthcare, education, and transportation, and its benefits include improved accuracy, time savings, and automation of repetitive tasks. Overall, AI is becoming increasingly integral to daily life as it continues to evolve.\n",
+            "\n",
+            "\n",
+            "========== Refinement Cycle 1 ==========\n",
+            "\n",
+            "\n",
+            "Summarize the following article.\n",
+            "\n",
+            "Write in about 50 words.\n",
+            "Use simple English.\n",
+            "\n",
+            "Article:\n",
+            "\n",
+            "Artificial Intelligence (AI) is a technology that allows computers to perform tasks\n",
+            "that normally require human intelligence. AI is used in healthcare, education,\n",
+            "banking, transportation, and many other fields. It helps improve accuracy,\n",
+            "save time, and automate repetitive tasks. As AI continues to develop,\n",
+            "it is becoming an important part of our daily lives.\n",
+            "\n",
+            "\n",
+            "\n",
+            "Output:\n",
+            "\n",
+            "AI is a computer technology that helps with tasks. It makes things more accurate and saves time. AI is used in many areas and is becoming a big part of our lives.\n",
+            "\n",
+            "\n",
+            "========== Refinement Cycle 2 ==========\n",
+            "\n",
+            "\n",
+            "Summarize the following article.\n",
+            "\n",
+            "Rules:\n",
+            "- Write 40 to 50 words.\n",
+            "- Use simple English.\n",
+            "- Write exactly 4 bullet points.\n",
+            "\n",
+            "Article:\n",
+            "\n",
+            "Artificial Intelligence (AI) is a technology that allows computers to perform tasks\n",
+            "that normally require human intelligence. AI is used in healthcare, education,\n",
+            "banking, transportation, and many other fields. It helps improve accuracy,\n",
+            "save time, and automate repetitive tasks. As AI continues to develop,\n",
+            "it is becoming an important part of our daily lives.\n",
+            "\n",
+            "\n",
+            "\n",
+            "Output:\n",
+            "\n",
+            "AI helps computers. \n",
+            "* AI is used in healthcare\n",
+            "* AI is used in education\n",
+            "* AI saves time \n",
+            "* AI improves accuracy\n"
+          ]
+        }
+      ]
+    }
+  ]
+}
